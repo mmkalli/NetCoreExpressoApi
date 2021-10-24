@@ -1,7 +1,9 @@
+using ExpressoApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,10 +34,11 @@ namespace ExpressoApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpressoApi", Version = "v1" });
             });
+            services.AddDbContext<ExpressoDbContext>(options => options.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\melih\Documents\NetCoreProjects.mdf;Integrated Security=True;Connect Timeout=30"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ExpressoDbContext expressoDbContext)
         {
             if (env.IsDevelopment())
             {
