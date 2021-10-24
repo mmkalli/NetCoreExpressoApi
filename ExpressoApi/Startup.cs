@@ -1,4 +1,5 @@
 using ExpressoApi.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -34,7 +35,18 @@ namespace ExpressoApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpressoApi", Version = "v1" });
             });
-            services.AddDbContext<ExpressoDbContext>(options => options.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\melih\Documents\NetCoreProjects.mdf;Integrated Security=True;Connect Timeout=30"));
+            services.AddDbContext<ExpressoDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ExpressoDbContext")));
+
+            // 1. Add Authentication Services
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = "https://quotesapimmk.us.auth0.com/";
+                options.Audience = "https://localhost:44352/";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,7 +63,12 @@ namespace ExpressoApi
 
             app.UseRouting();
 
+            // 2. Enable authentication middleware
+            app.UseAuthentication();
+
             app.UseAuthorization();
+
+            expressoDbContext.Database.EnsureCreated();
 
             app.UseEndpoints(endpoints =>
             {

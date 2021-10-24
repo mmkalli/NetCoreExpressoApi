@@ -1,4 +1,5 @@
 ﻿using ExpressoApi.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace ExpressoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MenusController : ControllerBase
     {
         ExpressoDbContext _expressoDbContext;
@@ -20,12 +22,14 @@ namespace ExpressoApi.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             return Ok(_expressoDbContext.Menus.Include("SubMenus"));
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public IActionResult Get(int id)
         {
             return Ok(_expressoDbContext.Menus.Include("SubMenus").FirstOrDefault(x=>x.Id == id));
